@@ -1,5 +1,5 @@
 """
-Simple convenience function to extract docstring
+Simple convenience functions to extract docstring and write README
 
 Examples
 --------
