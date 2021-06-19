@@ -28,7 +28,7 @@ Print the first line of a docstring:
   >>> docstring = gleandoc.docstring('re')
   >>> docstring.splitlines()[0]
   'Support for regular expressions (RE).'
-  >>> 
+  >>>
 
 Do the same thing from the command line:
 
@@ -46,6 +46,7 @@ Features
 Limitations
 -----------
 
+* Embedded backslash-n newlines are treated as actual newlines
 * Relies on various pseudo-internals: locals(), exec()
 
 
