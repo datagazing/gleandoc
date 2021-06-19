@@ -14,6 +14,9 @@ myself = pathlib.Path(__file__).stem
 
 sys.path.append('.')
 
+########################################################################
+
+
 def docstring(name=os.path.basename(os.getcwd())):
     """
     Return the doctring for a module or object
@@ -35,7 +38,7 @@ def docstring(name=os.path.basename(os.getcwd())):
     doc = ''
     try:
         exec(f"import {name}")
-    except:
+    except Exception:
         print(f"{myself}: no module {name} (moving on)", file=sys.stderr)
     if name in locals() and hasattr(locals()[name], '__doc__'):
         doc = locals()[name].__doc__
@@ -44,18 +47,19 @@ def docstring(name=os.path.basename(os.getcwd())):
 
     return doc
 
+
 def interpolate(input, output):
     """Interpolate docstring into template and write file"""
 
     try:
         template = open(input).read()
-    except:
+    except Exception:
         print(f"{myself}: ERROR: failed reading {input}", file=sys.stderr)
         sys.exit(1)
     try:
         doc = docstring()
         interpolated = template.format(**{'__doc__': doc})
-    except:
+    except Exception:
         print(f"{myself}: error interpolating {input}", file=sys.stderr)
         sys.exit(1)
     try:
@@ -63,9 +67,10 @@ def interpolate(input, output):
             print(f"{myself}: WARNING: replacing {output}", file=sys.stderr)
         open(output, 'wt').write(interpolated)
         print(f"{myself}: INFO: wrote {output}", file=sys.stderr)
-    except:
+    except Exception:
         print(f"{myself}: ERROR: failed writing {output}", file=sys.stderr)
         sys.exit(1)
+
 
 def usage():
     usagemsg = f"""Usage: {myself} [-h] [NAME]
@@ -86,6 +91,7 @@ Interpolate docstring into TEMPLATE and write results to README
 """
     print(usagemsg)
 
+
 def main():
     # intentionally avoiding libraries to keep complexity down
     if len(sys.argv) == 1:
@@ -103,6 +109,7 @@ def main():
         print(f"{myself}: ERROR: too many arguments\n", file=sys.stderr)
         usage()
         sys.exit(1)
+
 
 if __name__ == '__main__':
     main()

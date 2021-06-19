@@ -12,7 +12,7 @@ Print the first line of a docstring:
   >>> docstring = gleandoc.docstring('re')
   >>> docstring.splitlines()[0]
   'Support for regular expressions (RE).'
-  >>> 
+  >>>
 
 Do the same thing from the command line:
 
