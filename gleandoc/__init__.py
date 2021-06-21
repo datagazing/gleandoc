@@ -36,6 +36,27 @@ current directory:
   gleandoc: INFO: wrote README.rst
   $
 
+The -h option at the command line will show supported options:
+
+.. code-block:: console
+
+  $ gleandoc -h
+  Usage: gleandoc [-h] [NAME]
+  Extract docstring from module [NAME]
+
+    -h, --help            show this help message and exit
+
+  - If unspecified, NAME defaults to the basename of the current directory
+  - This is designed for use in build systems to construct README files
+
+  Alternative two argument usage: gleandoc TEMPLATE README
+  Interpolate docstring into TEMPLATE and write results to README
+
+  - In this mode, always derives NAME from basename of current directory
+  - Template uses style similar to f-string
+  - Supported variables which will be interpolated include: {__doc__}
+  - For literal (single) braces, use double braces: {{ or }}
+
 Features
 --------
 
