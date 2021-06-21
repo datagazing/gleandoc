@@ -23,6 +23,7 @@ def docstring(name=os.path.basename(os.getcwd())):
 
     - The default name is the basename of the current working directory
         - For example: if /var/tmp, name = 'tmp'
+    - Will take docstring from installed package if it is available
 
     Parameters
     ----------
