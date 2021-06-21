@@ -76,13 +76,13 @@ docs: ## generate Sphinx HTML documentation, including API docs
 servedocs: docs ## compile the docs watching for changes
 	watchmedo shell-command -p '*.rst' -c '$(MAKE) -C docs html' -R -D .
 
-README.rst: README.rst.fstr
+README.rst: README.rst.fstr gleandoc/__init__.py
 	gleandoc README.rst.fstr README.rst
 
 release: dist ## package and upload a release
 	flit publish
 
-dist: clean README.rst ## builds source and wheel package
+dist: clean ## builds source and wheel package
 	flit build
 
 install: clean dist ## install the package to the active Python's site-packages
