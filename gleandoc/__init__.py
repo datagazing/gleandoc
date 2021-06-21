@@ -1,5 +1,5 @@
 """
-Simple convenience functions to extract docstring and write README
+Convenience functions to extract docstring and write README
 
 * Intent: store one copy of top-level docstring in <package>/__init__.py
 * Allows generation of top level gitub README based on the package docstring
@@ -62,7 +62,7 @@ Features
 
 * Determine package name from current directory
 * Extract docstring using Python semantics and standards
-* No dependencies
+* No dependencies outside standard library
 
 Limitations
 -----------
