@@ -11,20 +11,39 @@ import sys
 
 import gleandoc
 
+sample_init_py = '''"""
+657dafc3af
+"""
+
+__author__ = """Some Author"""
+__email__ = 'author@example.com'
+__version__ = '1.2.3'
+'''
+
 
 class TestGleandoc(unittest.TestCase):
     """Tests for `gleandoc` package."""
 
     def setUp(self):
         """Set up test fixtures, if any."""
+        try:
+            os.mkdir('astparse')
+            open('astparse/__init__.py', 'w').write(sample_init_py)
+            os.sync()
+        except Exception as e:
+            print(f"exception details: {e}")
 
     def tearDown(self):
         """Tear down test fixtures, if any."""
         try:
             os.unlink('test.rst')
-            print('tearDown: removed test.rst')
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"exception details: {e}")
+        try:
+            os.unlink('astparse/__init__.py')
+            os.rmdir('astparse')
+        except Exception as e:
+            print(f"exception details: {e}")
 
     def test_docstring_stdlib_module(self):
         """Test extracting docstring from standard library module"""
@@ -32,12 +51,15 @@ class TestGleandoc(unittest.TestCase):
         line = docstring.splitlines()[0]
         assert line == 'Support for regular expressions (RE).'
 
-    def test_docstring_cwd_basename(self):
-        """Test extracting docstring based on working directory name"""
-        docstring = gleandoc.docstring()
-        line = docstring.splitlines()[9]
-        # this test will need to be updated if the docstring changes
-        assert line == 'Print the first line of a docstring:'
+    def test_ast_parse(self):
+        """Test interpolating the docstring into readme at command line"""
+        toxenv = os.environ['TOX_ENV_NAME']
+        program = f"{os.getcwd()}/.tox/{toxenv}/bin/gleandoc"
+        output = subprocess.check_output(
+            [sys.executable, program, 'astparse'],
+            text=True,
+        )
+        assert bool(re.search(r'657dafc3af', output, re.MULTILINE))
 
     def test_generate_readme(self):
         """Test interpolating the docstring into readme at command line"""
