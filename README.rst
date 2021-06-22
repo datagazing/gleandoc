@@ -14,11 +14,18 @@ gleandoc
         :alt: Documentation Status
 
 
-
 Convenience functions to extract docstring and write README
 
 * Intent: store one copy of top-level docstring in <package>/__init__.py
 * Allows generation of top level gitub README based on the package docstring
+
+Features
+--------
+
+* Determine package name from current directory
+* Extract docstring using Python semantics and standards
+* No dependencies outside standard library
+* Uses abstract syntax tree parsing for relative __init__.py files
 
 Examples
 --------
@@ -73,20 +80,11 @@ The -h option at the command line will show supported options:
   - Supported variables which will be interpolated include: {__doc__}
   - For literal (single) braces, use double braces: {{ or }}
 
-Features
---------
-
-* Determine package name from current directory
-* Extract docstring using Python semantics and standards
-* No dependencies outside standard library
-
 Limitations
 -----------
 
 * Embedded backslash-n newlines are treated as actual newlines
 * Relies on various pseudo-internals: locals(), exec()
-
-
 
 Credits
 -------
