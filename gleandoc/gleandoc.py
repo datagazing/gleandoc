@@ -1,29 +1,33 @@
 #!/usr/bin/env python3
 
-"""
-Simple convenience function to extract docstring
+"""See top level package docstring for documentation"""
 
-See top level package docstring for documentation
-"""
-
+import ast
+import importlib
+import logging
 import os
 import pathlib
 import sys
 
 myself = pathlib.Path(__file__).stem
 
-sys.path.append('.')
+# configure library-specific logger
+logger = logging.getLogger(myself)
+logging.getLogger(myself).addHandler(logging.NullHandler())
+
+logging.basicConfig(level=logging.DEBUG)
 
 ########################################################################
 
 
 def docstring(name=os.path.basename(os.getcwd())):
     """
-    Return the doctring for a module or object
+    Return the doctring for a module
 
     - The default name is the basename of the current working directory
         - For example: if /var/tmp, name = 'tmp'
-    - Will take docstring from installed package if it is available
+    - First try relative import in current directory
+    - Then try general import (read docstring from installed package)
 
     Parameters
     ----------
@@ -36,17 +40,41 @@ def docstring(name=os.path.basename(os.getcwd())):
     str, default=''
         The extracted docstring
     """
-    doc = ''
-    try:
-        exec(f"import {name}")
-    except Exception:
-        print(f"{myself}: no module {name} (moving on)", file=sys.stderr)
-    if name in locals() and hasattr(locals()[name], '__doc__'):
-        doc = locals()[name].__doc__
-    else:
-        print(f"{myself}: {name} has no __doc__ element", file=sys.stderr)
+    logger.info(f"searching for docstring belonging to {name}")
 
-    return doc
+    try:
+        # logger.info(f"trying relative import in working directory...")
+        # hit = importlib.import_module(name, package='.')
+        # logger.info(f"relative import: loaded module from {hit.__file__}")
+        # return hit.__doc__
+        cwd = os.getcwd()
+        python_file = f"{cwd}/{name}/__init__.py"
+        logger.info(f"attempting abstract syntax tree parse: {python_file}")
+        parsed = ast.parse(open(python_file).read())
+        logger.info('abstract syntax tree parse succeeded')
+        doc = ast.get_docstring(parsed)
+        logger.info('retrieved docstring from abstract syntax tree')
+        return doc
+    except Exception as e:
+        logger.info('failed parse')
+        logger.debug(f"exception details: {e}")
+
+    try:
+        logger.info('trying general import...')
+        hit = importlib.import_module(name)
+        logger.info(f"general import: loaded module from {hit.__file__}")
+        return hit.__doc__
+    except ModuleNotFoundError as e:
+        logger.info(f"failed general import of {name}")
+        logger.debug(f"exception details: {e}")
+    except AttributeError as e:
+        logger.info(f"import succeeded for {name}")
+        logger.info(f"however, {name} lacks __doc__ attribute")
+        logger.debug(f"exception details: {e}")
+
+    logger.info(f"unable to extract docstring for {name}")
+    logger.info('returning empty string')
+    return ''
 
 
 def interpolate(input, output):
@@ -55,21 +83,21 @@ def interpolate(input, output):
     try:
         template = open(input).read()
     except Exception:
-        print(f"{myself}: ERROR: failed reading {input}", file=sys.stderr)
+        logger.error(f"failed reading {input}")
         sys.exit(1)
     try:
         doc = docstring()
         interpolated = template.format(**{'__doc__': doc})
     except Exception:
-        print(f"{myself}: error interpolating {input}", file=sys.stderr)
+        logger.error(f"failed interpolating {input}")
         sys.exit(1)
     try:
         if os.path.exists(output):
-            print(f"{myself}: WARNING: replacing {output}", file=sys.stderr)
+            logger.warning(f"replacing {output}")
         open(output, 'wt').write(interpolated)
-        print(f"{myself}: INFO: wrote {output}", file=sys.stderr)
+        logger.info(f"wrote {output}")
     except Exception:
-        print(f"{myself}: ERROR: failed writing {output}", file=sys.stderr)
+        logger.error(f"failed writing {output}")
         sys.exit(1)
 
 
@@ -94,7 +122,6 @@ Interpolate docstring into TEMPLATE and write results to README
 
 
 def main():
-    # intentionally avoiding libraries to keep complexity down
     if len(sys.argv) == 1:
         print(docstring())
     elif len(sys.argv) == 2:
@@ -107,7 +134,7 @@ def main():
     elif len(sys.argv) == 3:
         interpolate(input=sys.argv[1], output=sys.argv[2])
     else:
-        print(f"{myself}: ERROR: too many arguments\n", file=sys.stderr)
+        logger.error('too many arguments\n')
         usage()
         sys.exit(1)
 
